@@ -378,6 +378,65 @@ class _TodoHomePageState extends State<TodoHomePage> {
     );
   }
 
+  Future<void> showAddTodoDialog() async {
+    final controller = TextEditingController();
+
+    final title = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Add a new task'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            textInputAction: TextInputAction.done,
+            decoration: const InputDecoration(
+              hintText: 'Enter your todo...',
+              prefixIcon: Icon(Icons.edit_outlined),
+            ),
+            onSubmitted: (value) {
+              if (value.trim().isNotEmpty) {
+                Navigator.pop(dialogContext, value.trim());
+              }
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final value = controller.text.trim();
+
+                if (value.isNotEmpty) {
+                  Navigator.pop(dialogContext, value);
+                }
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+
+    controller.dispose();
+
+    if (!mounted || title == null || title.isEmpty) return;
+
+    setState(() {
+      todos.insert(
+        0,
+        Todo(
+          id: nextId++,
+          title: title,
+        ),
+      );
+
+      currentFilter = TodoFilter.all;
+    });
+  }
+
   Widget _buildWelcome(BuildContext context, bool isCompact) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,14 +534,14 @@ class _TodoHomePageState extends State<TodoHomePage> {
           ),
           const SizedBox(width: 8),
           FilledButton.icon(
-            onPressed: addTodo,
+            onPressed: showAddTodoDialog,
             icon: const Icon(Icons.add_rounded, size: 19),
-            label: Text(isCompact ? 'Add' : 'Add task'),
+            label: const Text('Add task'),
             style: FilledButton.styleFrom(
               backgroundColor: const Color(0xFF6558F5),
               foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(
-                horizontal: isCompact ? 13 : 20,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
                 vertical: 17,
               ),
               shape: RoundedRectangleBorder(
