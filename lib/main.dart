@@ -283,6 +283,7 @@ class _TodoHomePageState extends State<TodoHomePage> {
     final isCompact = screenWidth < 600;
 
     return Scaffold(
+      drawer: _buildAppDrawer(context),
       appBar: AppBar(
         toolbarHeight: 76,
         titleSpacing: isCompact ? 18 : 32,
@@ -361,7 +362,9 @@ class _TodoHomePageState extends State<TodoHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildWelcome(context, isCompact),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 18),
+                  _buildImageFitExamples(context, isCompact),
+                  const SizedBox(height: 20),
                   _buildStats(context, isCompact),
                   const SizedBox(height: 28),
                   _buildInput(context, isCompact),
@@ -396,6 +399,188 @@ class _TodoHomePageState extends State<TodoHomePage> {
           style: TextStyle(
             fontSize: 15,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
+
+  Widget _buildAppDrawer(BuildContext context) {
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color(0xFF6558F5),
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: const [
+                    CircleAvatar(
+                      radius: 25,
+                      backgroundColor: Colors.white,
+                      child: Icon(
+                        Icons.check_rounded,
+                        color: Color(0xFF6558F5),
+                        size: 30,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'TaskFlow',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      'Your day, organized',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home_outlined),
+              title: const Text('Home'),
+              selected: true,
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  currentFilter = TodoFilter.all;
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.checklist_rounded),
+              title: const Text('Todo'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  currentFilter = TodoFilter.all;
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pop(context);
+                showDialog<void>(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    title: const Text('Settings'),
+                    content: const Text(
+                      'Use the theme button in the top bar to switch '
+                          'between light and dark mode.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        child: const Text('Close'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(
+                isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              ),
+              title: Text(isDark ? 'Light theme' : 'Dark theme'),
+              onTap: () {
+                Navigator.pop(context);
+                widget.onToggleTheme();
+              },
+            ),
+            const Spacer(),
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'TaskFlow • Todo application',
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageFitExamples(BuildContext context, bool isCompact) {
+    const imageUrl =
+        'https://images.unsplash.com/photo-1498050108023-c5249f4df085'
+        '?auto=format&fit=crop&w=900&q=80';
+
+    Widget imageExample(String label, BoxFit fit) {
+      return SizedBox(
+        width: isCompact ? 145 : 175,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 88,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Image.network(
+                imageUrl,
+                fit: fit,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(
+                    child: Icon(Icons.image_not_supported_outlined),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'IMAGE & BOXFIT',
+          style: TextStyle(
+            fontSize: 11,
+            letterSpacing: 1.4,
+            fontWeight: FontWeight.w800,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 9),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              imageExample('Cover • crops image', BoxFit.cover),
+              const SizedBox(width: 10),
+              imageExample('Contain • whole image', BoxFit.contain),
+              const SizedBox(width: 10),
+              imageExample('Fill • stretches image', BoxFit.fill),
+            ],
           ),
         ),
       ],
